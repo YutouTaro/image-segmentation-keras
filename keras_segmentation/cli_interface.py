@@ -11,29 +11,28 @@ from .data_utils.visualize_dataset import visualize_segmentation_dataset
 
 def train_action(command_parser):
     parser = command_parser.add_parser('train')
-    parser.add_argument("--model_name", type=str, required=True)
-    parser.add_argument("--train_images", type=str, required=True)
-    parser.add_argument("--train_annotations", type=str, required=True)
+    parser.add_argument("--model_name",             type=str, required=True, help='name of the model')
+    parser.add_argument("--train_images",           type=str, required=True, help='path to train images')
+    parser.add_argument("--train_annotations",      type=str, required=True, help='path to train segmentation')
 
-    parser.add_argument("--n_classes", type=int, required=True)
-    parser.add_argument("--input_height", type=int, default=None)
-    parser.add_argument("--input_width", type=int, default=None)
+    parser.add_argument("--n_classes",              type=int, required=True, help='number of classes')
+    parser.add_argument("--input_height",           type=int, default=None,  help='height of the image, if omitted, default value will be assigned')
+    parser.add_argument("--input_width",            type=int, default=None, help='width of the image, if omitted, default value will be assigned')
+    parser.add_argument('--verify_dataset',         action='store_true', help='True to varify the datasets')
+    parser.add_argument("--checkpoints_path",       type=str, default=None, help="the file checkpoints_path+'_config.json' stores the info of the model")
+    parser.add_argument("--epochs",                 type=int, default=5, help='number of epochs')
+    parser.add_argument("--batch_size",             type=int, default=2, help=' input batch size')
 
-    parser.add_argument('--not_verify_dataset', action='store_false')
-    parser.add_argument("--checkpoints_path", type=str, default=None)
-    parser.add_argument("--epochs", type=int, default=5)
-    parser.add_argument("--batch_size", type=int, default=2)
+    parser.add_argument('--validate',               action='store_true', help='true to enable validation using the (val_images, val_annotations)')
+    parser.add_argument("--val_images",             type=str, default="", help='path to validation images')
+    parser.add_argument("--val_annotations",        type=str, default="", help='path to validation segmentation')
 
-    parser.add_argument('--validate', action='store_true')
-    parser.add_argument("--val_images", type=str, default="")
-    parser.add_argument("--val_annotations", type=str, default="")
+    parser.add_argument("--val_batch_size",         type=int, default=2, help='validation batch size')
+    parser.add_argument("--load_weights",           type=str, default=None, help='the path to weight file')
+    parser.add_argument('--auto_resume_checkpoint', action='store_true', help='True to load the latest(largest epoch count) training weight')
 
-    parser.add_argument("--val_batch_size", type=int, default=2)
-    parser.add_argument("--load_weights", type=str, default=None)
-    parser.add_argument('--auto_resume_checkpoint', action='store_true')
-
-    parser.add_argument("--steps_per_epoch", type=int, default=512)
-    parser.add_argument("--optimizer_name", type=str, default="adam")
+    parser.add_argument("--steps_per_epoch",        type=int, default=512, help='steps of each epoch for training, should equal to number of sample / batch size')
+    parser.add_argument("--optimizer_name",         type=str, default="adam", help='the method used for optimizing')
 
     def action(args):
         return train(model=args.model_name,
@@ -42,7 +41,7 @@ def train_action(command_parser):
                      input_height=args.input_height,
                      input_width=args.input_width,
                      n_classes=args.n_classes,
-                     verify_dataset=args.not_verify_dataset,
+                     verify_dataset=args.verify_dataset,
                      checkpoints_path=args.checkpoints_path,
                      epochs=args.epochs,
                      batch_size=args.batch_size,
