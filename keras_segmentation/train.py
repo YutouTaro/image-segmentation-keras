@@ -7,7 +7,11 @@ from keras.callbacks import Callback
 
 
 def find_latest_checkpoint(checkpoints_path, fail_safe=True):
-
+    '''
+    return the largest epoch number by going through the files with valid filename format in checkpoints_path
+    checkpoints_path: path to the folder of checkpoints files
+    fail_safe: false to raise ValueError when no valid files in checkpoints_path
+    '''
     def get_epoch_number_from_path(path):
         return path.replace(checkpoints_path, "").strip(".")
 
@@ -71,6 +75,31 @@ def train(model,
           optimizer_name='adam',
           do_augment=False,
           augmentation_name="aug_all"):
+    '''
+    model: could be a string or a model variable
+    train_images: path to train images
+    train_annotations: path to train segmentation
+    input_height: if omitted, default value will be assigned
+    input_width: if omitted, default value will be assigned
+    n_classes: number of classes
+    verify_dataset: True to varify the datasets, default=True
+    checkpoints_path: the file checkpoints_path+'_config.json' stores the info of the model
+    epochs: number of epochs, default=5
+    batch_size: input batch size, default=2
+    validate: true to enable validation using the (val_images, val_annotations)
+    val_images: path to validation images
+    val_annotations: path to validation segmentation
+    val_batch_size: validation batch size
+    auto_resume_checkpoint: True to load the latest(largest epoch count) training weight, default=False
+    load_weights: the path to weight file, default=None (not load weights)
+    steps_per_epoch: steps of each epoch for training, should equal to number of sample / batch size
+    val_steps_per_epoch: steps of each epoch for validation, should equal to number of sample / batch size
+    gen_use_multiprocessing: true to enable multi-thread processing for model training
+    ignore_zero_class: true to ignore the zero class, default=False
+    optimizer_name: the method used for optimizing, default='adam'
+    do_augment: true to apply augment to training images, default=False
+    augmentation_name: method of the augmentation, choice:["aug_all", "aug_all2", "aug_geometric", "aug_non_geometric"], default:"aug_all"
+    '''
 
     from .models.all_models import model_from_name
     # check if user gives model name instead of the model object
@@ -146,8 +175,8 @@ def train(model,
 
     if validate:
         val_gen = image_segmentation_generator(
-            val_images, val_annotations,  val_batch_size,
-            n_classes, input_height, input_width, output_height, output_width)
+            val_images, val_annotations,  val_batch_size, n_classes,
+            input_height, input_width, output_height, output_width) # no augment for validation set
 
     callbacks = [
         CheckpointsCallback(checkpoints_path)
@@ -157,8 +186,7 @@ def train(model,
         model.fit_generator(train_gen, steps_per_epoch,
                             epochs=epochs, callbacks=callbacks)
     else:
-        model.fit_generator(train_gen,
-                            steps_per_epoch,
+        model.fit_generator(train_gen, steps_per_epoch,
                             validation_data=val_gen,
                             validation_steps=val_steps_per_epoch,
                             epochs=epochs, callbacks=callbacks,

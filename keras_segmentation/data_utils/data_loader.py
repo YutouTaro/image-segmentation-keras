@@ -48,7 +48,7 @@ def get_pairs_from_paths(images_path, segs_path, ignore_non_matching=False):
 
     for dir_entry in os.listdir(segs_path):
         if os.path.isfile(os.path.join(segs_path, dir_entry)) and \
-           os.path.splitext(dir_entry)[1] in ACCEPTABLE_SEGMENTATION_FORMATS:
+                os.path.splitext(dir_entry)[1] in ACCEPTABLE_SEGMENTATION_FORMATS:
             file_name, file_extension = os.path.splitext(dir_entry)
             full_dir_entry = os.path.join(segs_path, dir_entry)
             if file_name in segmentation_files:
@@ -146,6 +146,16 @@ def get_segmentation_array(image_input, nClasses,
 
 def verify_segmentation_dataset(images_path, segs_path,
                                 n_classes, show_all_errors=False):
+    '''
+    varify the image_path and segs_path, including:
+        there are image pairs in these two paths
+        the sizes of the image and segmentation are matched
+        the values in segmentation do not exceeds number of classes
+    images_path: path to image folder
+    segs_path: path to segmentation folder
+    n_classes: number of classes, which label value in segmentation should not exceeds
+    show_all_errors: report all errors, continue even an error has been found, default: False
+    '''
     try:
         img_seg_pairs = get_pairs_from_paths(images_path, segs_path)
         if not len(img_seg_pairs):
@@ -191,6 +201,12 @@ def image_segmentation_generator(images_path, segs_path, batch_size,
                                  output_height, output_width,
                                  do_augment=False,
                                  augmentation_name="aug_all"):
+    '''
+    generate an iter of (image,segmentation)
+    images_path, segs_path, batch_size, n_classes, input_height, input_width, output_height, output_width,
+    do_augment: apply augmentation, default: False,
+    augmentation_name: augmentation(s) applied , default:"aug_all"
+    '''
 
     img_seg_pairs = get_pairs_from_paths(images_path, segs_path)
     random.shuffle(img_seg_pairs)

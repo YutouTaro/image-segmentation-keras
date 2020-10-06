@@ -1,3 +1,7 @@
+'''
+a dict to link string of model name to model instance
+'''
+
 from . import pspnet
 from . import unet
 from . import segnet
