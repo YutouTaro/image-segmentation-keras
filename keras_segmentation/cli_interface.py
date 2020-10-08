@@ -8,9 +8,9 @@ from .predict import predict, predict_multiple, predict_video, evaluate
 from .data_utils.data_loader import verify_segmentation_dataset
 from .data_utils.visualize_dataset import visualize_segmentation_dataset
 
-def print_args(args):
+def print_args(parser):
     print('-' * 20 + 'Options' + '-' * 20)
-    # args = vars(parser.parse_args())
+    args = vars(parser.parse_args())
     for key, value in sorted(args.items()):
         print('{}:{}'.format(key, value))
     print('-' * 47)
@@ -39,9 +39,9 @@ def train_action(command_parser):
 
     parser.add_argument("--steps_per_epoch",        type=int, default=512, help='steps of each epoch for training, should equal to number of sample / batch size')
     parser.add_argument("--optimizer_name",         type=str, default="adam", help='the method used for optimizing')
+    print_args(parser)
 
     def action(args):
-        print_args(args)
         return train(model=args.model_name,
                      train_images=args.train_images,
                      train_annotations=args.train_annotations,
