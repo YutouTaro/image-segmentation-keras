@@ -3,7 +3,7 @@ from .data_utils.data_loader import image_segmentation_generator, \
     verify_segmentation_dataset
 import glob
 import six
-from keras.callbacks import Callback
+from keras.callbacks import Callback, TensorBoard
 
 
 def find_latest_checkpoint(checkpoints_path, fail_safe=True):
@@ -51,6 +51,14 @@ class CheckpointsCallback(Callback):
             self.model.save_weights(self.checkpoints_path + "." + str(epoch))
             print("saved ", self.checkpoints_path + "." + str(epoch))
 
+class testCallback(Callback):
+    def __init__(self):
+        pass
+
+    def on_train_begin(self, logs=None):
+        print('*'*20)
+
+tensorboard_callback = TensorBoard(log_dir='./log')
 
 def train(model,
           train_images,
@@ -179,7 +187,9 @@ def train(model,
             input_height, input_width, output_height, output_width) # no augment for validation set
 
     callbacks = [
-        CheckpointsCallback(checkpoints_path)
+        CheckpointsCallback(checkpoints_path),
+        tensorboard_callback,
+        testCallback()
     ]
 
     if not validate:
